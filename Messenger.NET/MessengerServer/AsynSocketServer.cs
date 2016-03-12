@@ -39,9 +39,16 @@ namespace MessengerServer
         /// <summary>
         /// default constructor
         /// </summary>
-        public AsynSocketServer(Notifier notifier)
+        public AsynSocketServer(Notifier notifier = null)
         {
-            this.notifier = notifier;
+            if (notifier == null)
+            {
+                this.notifier = new ConsoleNotifier();
+            }
+            else
+            {
+                this.notifier = notifier;
+            }
 
             clients = new Dictionary<Socket, string>();
             port = DEFAULT_PORT;

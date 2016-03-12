@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsynSocketServer.cs" />
+    <Compile Include="ConsoleNotifier.cs" />
     <Compile Include="Notifier.cs" />
     <Compile Include="ServerForm.cs">
       <SubType>Form</SubType>
