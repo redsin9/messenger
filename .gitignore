@@ -1,2 +1,4 @@
-Server/obj/
-Server/bin/
+Messenger.NET/MessengerServer/obj/
+Messenger.NET/MessengerClient/bin/
+Messenger.NET/MessengerClient/obj/
+Messenger.NET/MessengerServer/bin/
