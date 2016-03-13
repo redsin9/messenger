@@ -1,4 +1,4 @@
-﻿namespace MessengerServer
+﻿namespace SharedCode
 {
     interface INotify
     {

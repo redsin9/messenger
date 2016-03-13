@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MessengerServer
+namespace SharedCode
 {
     class ConsoleNotifier : INotify
     {

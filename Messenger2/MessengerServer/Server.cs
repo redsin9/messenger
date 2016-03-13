@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharedCode;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -70,7 +71,7 @@ namespace MessengerServer
         {
             // start a thread listening for new connections
             listener.Start();
-            notifier.Notify(String.Format("Server has been started on {0}:{1}", address, port));
+            notifier.Notify(String.Format("Server has started on {0}:{1}", address, port));
 
             // create new thread accepting new connections
             Thread thread = new Thread(AcceptThread);
