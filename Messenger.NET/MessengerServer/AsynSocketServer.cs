@@ -126,7 +126,7 @@ namespace MessengerServer
             }
             catch (Exception e)
             {
-                notifier.Notify(e.Message);
+                notifier.Notify("Accept exception: " + e.Message);
             }
 
             // recursive this callback to wait for new connections from other clients
@@ -180,7 +180,7 @@ namespace MessengerServer
             catch (Exception e)
             {
                 // if there is any error happen to this client, disconnect it
-                notifier.Notify("Exception from client " + clientSocket.Handle + ": " + e.Message + "\n");
+                notifier.Notify("Read exception (" + clientSocket.Handle + "): " + e.Message + "\n");
                 disconnect = true;
             }
             finally
