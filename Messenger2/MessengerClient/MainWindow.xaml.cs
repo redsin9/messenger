@@ -34,7 +34,7 @@ namespace MessengerClient
 
         private void sendButton_Click(object sender, RoutedEventArgs e)
         {
-            client.SendMessage(sendTextBox.Text);
+            client.SendMessage(sendTextBox.Text, (bool) encryptCheckBox.IsChecked);
             sendTextBox.Clear();
         }
     }

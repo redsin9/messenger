@@ -10,6 +10,7 @@ namespace MessengerClient
     class Client
     {
         private const int BUFFER_SIZE = 1024;   // KB
+        public const string ENCRYPT_TAG = "<ECR>";
 
         private TcpClient handler;
         private volatile ILogger logger;
@@ -43,25 +44,27 @@ namespace MessengerClient
 
         private void ConnectServerThread()
         {
+            int port = NetworkProtocol.DEFAULT_PORT;
+            UdpClient listener = new UdpClient(port);
+            IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, port);
+            logger.Log("Waiting for server to broadcast its address...");
+
             // automatically receive server address from UDP broadcasting
             while (true)
             {
-                int port = NetworkProtocol.DEFAULT_PORT;
-                UdpClient listener = new UdpClient(port);
-                IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, port);
-                logger.Log("Waiting for server to broadcast its address...");
                 byte[] bytes = listener.Receive(ref endPoint);
 
                 // decrypt the message
                 string decryptedAddress = StringCipher.Decrypt(Encoding.ASCII.GetString(bytes, 0, bytes.Length), NetworkProtocol.PASS_PHRASE);
 
-                // make sure this is a valid ip address
+                // validates IP address
                 try
                 {
                     IPAddress serverAddress = IPAddress.Parse(decryptedAddress);
                 }
                 catch (Exception)
                 {
+                    // if this is not the correct server address, keep listening for other UDP messages
                     logger.Log("Received unknown UDP message: " + decryptedAddress);
                     continue;
                 }
@@ -82,14 +85,25 @@ namespace MessengerClient
             while (isListening)
             {
                 string message = NetworkProtocol.ReceiveMessage(stream);
+                message = message.Remove(message.LastIndexOf(NetworkProtocol.EOF));
+                int encryptTagIndex = message.LastIndexOf(ENCRYPT_TAG);
+                if (encryptTagIndex != -1)
+                {
+                    message = StringCipher.Decrypt(message.Remove(encryptTagIndex), NetworkProtocol.PASS_PHRASE);
+                }
                 logger.Log(message);
             }
         }
 
 
 
-        public void SendMessage(string message)
+        public void SendMessage(string message, bool encrypt)
         {
+            if (encrypt)
+            {
+                message = StringCipher.Encrypt(message, NetworkProtocol.PASS_PHRASE) + ENCRYPT_TAG;
+            }
+
             NetworkProtocol.SendMessage(handler.GetStream(), message);
         }
     }

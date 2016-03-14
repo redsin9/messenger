@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MessengerServer"
         mc:Ignorable="d"
-        Title="MainWindow" SizeToContent="WidthAndHeight" MinWidth="600" MinHeight="400">
+        Title="ACS A3 Server" SizeToContent="WidthAndHeight" MinWidth="600" MinHeight="400">
     <Grid>
         <TextBox x:Name="notificationBoard" IsReadOnly="True" Background="#FFF0F0F0" FontFamily="Consolas" FontSize="13.333"
                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="8"
