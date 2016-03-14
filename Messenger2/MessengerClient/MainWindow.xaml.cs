@@ -34,8 +34,25 @@ namespace MessengerClient
 
         private void sendButton_Click(object sender, RoutedEventArgs e)
         {
-            client.SendMessage(sendTextBox.Text, (bool) encryptCheckBox.IsChecked);
-            sendTextBox.Clear();
+            SendMessage();
+        }
+
+        private void sendTextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                SendMessage();
+            }
+        }
+
+        private void SendMessage()
+        {
+            string message = sendTextBox.Text.Trim('\n', '\t', ' ');
+            if (message != string.Empty)
+            {
+                client.SendMessage(sendTextBox.Text, (bool)encryptCheckBox.IsChecked);
+                sendTextBox.Clear();
+            }
         }
     }
 }
