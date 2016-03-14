@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SharedCode;
+using System;
 using System.Windows;
 
 namespace MessengerClient
@@ -11,24 +7,35 @@ namespace MessengerClient
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotify
     {
-        TcpClient client;
+        Client client;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            // connect to server
-            client = new TcpClient("192.168.0.102", 11000);
-            Console.WriteLine("Connected to server");
+            client = new Client();
+            client.SetNotifier(this);
+            try
+            {
+                client.Start();
+            }
+            catch (Exception e)
+            {
+                Notify("Failed to start client. " + e.Message);
+            }
+        }
 
-            // send something to server
-            NetworkStream ns = client.GetStream();
-            byte[] bytes = Encoding.Unicode.GetBytes("hello<EOF>");
-            ns.Write(bytes, 0, bytes.Length);
+        public void Notify(string notification)
+        {
+            Dispatcher.Invoke(delegate { notificationBoard.AppendText(notification + "\n"); });
+        }
 
-            // send hello message
+        private void sendButton_Click(object sender, RoutedEventArgs e)
+        {
+            client.SendMessage(sendTextBox.Text);
+            sendTextBox.Clear();
         }
     }
 }
