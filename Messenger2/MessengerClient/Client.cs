@@ -51,8 +51,9 @@ namespace MessengerClient
             listener.Close();
 
             // connect to server
-            notifier.Notify("Connecting to server...");
-            handler = new TcpClient(Encoding.ASCII.GetString(bytes, 0, bytes.Length), port);
+            string serverAddress = Encoding.ASCII.GetString(bytes, 0, bytes.Length);
+            notifier.Notify("Connecting to server address " + serverAddress);
+            handler = new TcpClient(serverAddress, port);
 
             // listening for incoming messages
             notifier.Notify("Client has connected to server successfully.");
