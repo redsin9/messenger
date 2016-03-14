@@ -12,5 +12,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)ConsoleNotifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)INotify.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NetworkProtocol.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StringCipher.cs" />
   </ItemGroup>
 </Project>

@@ -19,14 +19,14 @@ namespace MessengerServer
         private TcpListener listener;
         private List<TcpClient> clients = new List<TcpClient>();
 
-        private volatile INotify notifier;
+        private volatile ILogger logger;
         private volatile bool isAccepting = true;
         private volatile bool isTransmitting = false;
         private volatile bool isBroadcasting = true;
 
 
 
-        public Server(int port = NetworkProtocol.DEFAULT_PORT, INotify notifier = null)
+        public Server(int port = NetworkProtocol.DEFAULT_PORT, ILogger notifier = null)
         {
             // find the first IPv4 address
             foreach (IPAddress address in Dns.GetHostEntry(string.Empty).AddressList)
@@ -57,11 +57,11 @@ namespace MessengerServer
             }
         }
 
-        public void SetNotifier(INotify notifier)
+        public void SetLogger(ILogger logger)
         {
-            if (notifier != null)
+            if (logger != null)
             {
-                this.notifier = notifier;
+                this.logger = logger;
             }
         }
 
@@ -71,7 +71,7 @@ namespace MessengerServer
         {
             // start a thread listening for new connections
             listener.Start();
-            notifier.Notify(String.Format("Server has started on {0}:{1}", address, port));
+            logger.Log(String.Format("Server has started on {0}:{1}", address, port));
 
             // create new thread accepting new connections
             Thread acceptClientsThread = new Thread(AcceptClientsThread);
@@ -93,7 +93,7 @@ namespace MessengerServer
                 TcpClient client = listener.AcceptTcpClient();
                 clients.Add(client);
 
-                notifier.Notify(String.Format("New connection from {0}", client.Client.RemoteEndPoint));
+                logger.Log(String.Format("New connection from {0}", client.Client.RemoteEndPoint));
 
                 // start new thread for receiving data from the client
                 Thread thread = new Thread(() => ReceiveMessageThread(client));
@@ -111,11 +111,13 @@ namespace MessengerServer
             IPAddress submask = IPAddress.Parse(addressString.Substring(0, addressString.LastIndexOf('.') + 1) + "255");
             IPEndPoint target = new IPEndPoint(submask, port);
 
-            // create socket for broadcasting data
-            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            byte[] data = Encoding.ASCII.GetBytes(address.ToString());
+            // encrypt server address to prevent other program to send out fake server address
+            string encryptedAddress = StringCipher.Encrypt(addressString, NetworkProtocol.PASS_PHRASE);
+            byte[] data = Encoding.ASCII.GetBytes(encryptedAddress);
 
-            notifier.Notify("Broadcasting server address to " + target.ToString());
+            // starts boardcasting encrypted server address using UDP
+            logger.Log("Broadcasting server address to " + target.ToString());
+            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             while (isBroadcasting)
             {
                 socket.SendTo(data, target);
@@ -137,7 +139,7 @@ namespace MessengerServer
                 {
                     // blocking call
                     string message = NetworkProtocol.ReceiveMessage(stream);
-                    notifier.Notify(String.Format("{0} {1}", client.Client.RemoteEndPoint, message));
+                    logger.Log(String.Format("{0} {1}", client.Client.RemoteEndPoint, message));
 
                     // TODO implement MUTEX lock later
                     // wait until other thread stop transmitting the message
@@ -149,7 +151,7 @@ namespace MessengerServer
                     // lock transmit permission
                     isTransmitting = true;
 
-                    BroadcastMessage(client, message);
+                    TransmitMessage(client, message);
 
                     // release transmit permission
                     isTransmitting = false;
@@ -157,14 +159,17 @@ namespace MessengerServer
             }
             catch (Exception e)
             {
-                notifier.Notify(String.Format("[ERROR] {0}. {1}", client.Client.RemoteEndPoint, e.Message));
+                // stop tracking this client
+                clients.Remove(client);
+                logger.Log(String.Format("[ERROR] {0}. {1}", client.Client.RemoteEndPoint, e.Message));
             }
         }
 
 
 
-        private void BroadcastMessage(TcpClient sender, string message)
+        private void TransmitMessage(TcpClient sender, string message)
         {
+            // transmits message to all current connected clients
             foreach (TcpClient client in clients)
             {
                 byte[] buffer = NetworkProtocol.MESSAGE_ENCODE.GetBytes(message);

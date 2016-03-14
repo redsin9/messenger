@@ -11,7 +11,7 @@ namespace MessengerServer
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, INotify
+    public partial class MainWindow : Window, ILogger
     {
         Server server;
 
@@ -21,7 +21,7 @@ namespace MessengerServer
 
             // setup server
             server = new Server();
-            server.SetNotifier(this);
+            server.SetLogger(this);
 
             try
             {
@@ -29,11 +29,11 @@ namespace MessengerServer
             }
             catch (Exception e)
             {
-                Notify("Failed to start server. " + e.Message);
+                Log("Failed to start server. " + e.Message);
             }
         }
 
-        public void Notify(string notification)
+        public void Log(string notification)
         {
             Dispatcher.Invoke(delegate
             {

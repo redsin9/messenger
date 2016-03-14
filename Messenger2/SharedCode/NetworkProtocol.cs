@@ -3,11 +3,12 @@ using System.Text;
 
 namespace SharedCode
 {
-    class NetworkProtocol
+    static class NetworkProtocol
     {
         public const int DEFAULT_PORT = 11000;
         public const int BUFFER_SIZE = 1024;
         public const string EOF = "<EOF>";
+        public const string PASS_PHRASE = "ACS_A3";
         public static readonly Encoding MESSAGE_ENCODE = Encoding.Unicode;
 
 

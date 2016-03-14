@@ -7,7 +7,7 @@ namespace MessengerClient
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, INotify
+    public partial class MainWindow : Window, ILogger
     {
         Client client;
 
@@ -16,20 +16,20 @@ namespace MessengerClient
             InitializeComponent();
 
             client = new Client();
-            client.SetNotifier(this);
+            client.Logger(this);
             try
             {
                 client.Start();
             }
             catch (Exception e)
             {
-                Notify("Failed to start client. " + e.Message);
+                Log("Failed to start client. " + e.Message);
             }
         }
 
-        public void Notify(string notification)
+        public void Log(string message)
         {
-            Dispatcher.Invoke(delegate { notificationBoard.AppendText(notification + "\n"); });
+            Dispatcher.Invoke(delegate { notificationBoard.AppendText(message + "\n"); });
         }
 
         private void sendButton_Click(object sender, RoutedEventArgs e)

@@ -2,9 +2,9 @@
 
 namespace SharedCode
 {
-    class ConsoleNotifier : INotify
+    class ConsoleNotifier : ILogger
     {
-        public void Notify(string notification)
+        public void Log(string notification)
         {
             Console.WriteLine(notification);
         }
